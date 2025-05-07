@@ -1,6 +1,41 @@
 import React, { useState } from "react";
 import "./prediction.css";
 
+const ExplanationDisplay = ({ explanation }) => {
+  if (!explanation) return null;
+
+  // Convert explanation object to array and sort by absolute value
+  const sortedFeatures = Object.entries(explanation)
+    .map(([feature, value]) => ({
+      feature,
+      value,
+      absValue: Math.abs(value)
+    }))
+    .sort((a, b) => b.absValue - a.absValue);
+
+  return (
+    <div className="explanation-container">
+      <h4>Key Factors Influencing This Prediction:</h4>
+      <ul className="explanation-list">
+        {sortedFeatures.slice(0, 5).map(({ feature, value }) => (
+          <li key={feature} className={value > 0 ? "positive" : "negative"}>
+            <span className="feature-name">
+              {feature.replace(/_/g, " ").replace(/\(Y\/N\)/g, "")}:
+            </span>
+            <span className="feature-value">
+              {value > 0 ? "Increases" : "Decreases"} risk by{" "}
+              {Math.abs(value * 100).toFixed(1)}%
+            </span>
+          </li>
+        ))}
+      </ul>
+      <p className="explanation-note">
+        These are the top factors contributing to this prediction based on your input.
+      </p>
+    </div>
+  );
+};
+
 const Prediction = () => {
   const [formData, setFormData] = useState({
     age: "",
@@ -67,7 +102,7 @@ const Prediction = () => {
       "Weight (Kg)": +formData.weight,
       "Height(Cm)": +formData.height,
       "BMI": +formData.bmi,
-      "Blood Group": bloodGroups.indexOf(formData.bloodGroup) + 1, // Convert to numerical value
+      "Blood Group": bloodGroups.indexOf(formData.bloodGroup) + 1,
       "Pulse rate(bpm)": +formData.pulseRate,
       "Cycle(R/I)": +formData.cycleRegularity,
       "Cycle length(days)": +formData.cycleLength,
@@ -87,15 +122,30 @@ const Prediction = () => {
     };
 
     try {
-      const res = await fetch("http://localhost:5002/predict", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(payload),
-      });
+      // Make both prediction and explanation requests in parallel
+      const [predictionRes, explanationRes] = await Promise.all([
+        fetch("http://localhost:5002/predict", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(payload),
+        }),
+        fetch("http://localhost:5002/explain", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(payload),
+        })
+      ]);
 
-      const data = await res.json();
-      if (data.error) throw new Error(data.error);
-      setResult(data);
+      const predictionData = await predictionRes.json();
+      const explanationData = await explanationRes.json();
+      
+      if (predictionData.error) throw new Error(predictionData.error);
+      if (explanationData.error) throw new Error(explanationData.error);
+      
+      setResult({
+        ...predictionData,
+        explanation: explanationData.lime_explanation
+      });
     } catch (err) {
       setResult({ error: err.message });
     } finally {
@@ -124,6 +174,7 @@ const Prediction = () => {
                   ? "High likelihood of PCOS detected"
                   : "Low likelihood of PCOS detected"}
               </p>
+              {result.explanation && <ExplanationDisplay explanation={result.explanation} />}
             </>
           ) : result?.error ? (
             <p className="error-message">Error: {result.error}</p>
