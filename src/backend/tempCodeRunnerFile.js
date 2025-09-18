@@ -2,13 +2,13 @@ const express = require("express");
 const cors = require("cors");
 const jwt = require("jsonwebtoken");
 const bcrypt = require("bcrypt");
-require("dotenv").config();
+require("dotenv").config(); 
 
 const mongoose = require("./db");
 const User = require("./models/users");
-const Period = require("./models/periods");
+const Period = require("./models/periods"); // import Period model
 
-const app = express();
+const app  = express();
 const PORT = 5001;
 const SECRET_KEY = process.env.JWT_SECRET;
 
@@ -18,9 +18,10 @@ app.use(express.json());
 // ---------------------- USER ENDPOINTS ----------------------
 app.post("/signup", async (req, res) => {
   const { username, password } = req.body;
+
   try {
     const existingUser = await User.findOne({ username });
-    if (existingUser)
+    if (existingUser) 
       return res.status(400).json({ message: "User already exists" });
 
     const hashedPassword = await bcrypt.hash(password, 10);
@@ -29,27 +30,38 @@ app.post("/signup", async (req, res) => {
 
     res.status(201).json({ message: "Signup successful" });
   } catch (err) {
-    console.error("Signup error:", err);
+    console.error("Signup error:", err);    
     res.status(500).json({ message: "Signup error", error: err.message });
   }
 });
 
 app.post("/login", async (req, res) => {
   const { username, password } = req.body;
+
   try {
     const user = await User.findOne({ username });
-    if (!user)
+    if (!user) 
       return res.status(401).json({ message: "Invalid credentials. User doesn't exist" });
 
     const isPasswordValid = await bcrypt.compare(password, user.password);
-    if (!isPasswordValid)
+    if (!isPasswordValid) 
       return res.status(401).json({ message: "Invalid credentials. Password is incorrect" });
 
-    const token = jwt.sign({ username }, SECRET_KEY, { expiresIn: "30m" });
+    const token = jwt.sign({ username }, SECRET_KEY, { expiresIn:"30m" });
     res.json({ token });
-  } catch (err) {
-    res.status(500).json({ message: "Login error", error: err.message });
+  } catch (err){
+    res.status(500).json({ message: "Login error", error: err.message }); 
   }
+});
+
+app.get("/dashboard", (req, res) => {
+  const token = req.headers.authorization;
+  if (!token) return res.status(403).json({ message: "No token provided" });
+
+  jwt.verify(token.split(" ")[1], SECRET_KEY, (err, decoded) => {
+    if (err) return res.status(401).json({ message: "Invalid token" });
+    res.json({ message: `Welcome, ${decoded.username}!` });
+  });
 });
 
 // ---------------------- PERIOD ENDPOINTS ----------------------
@@ -57,23 +69,19 @@ app.post("/login", async (req, res) => {
 // Save or update a period
 app.post("/api/period", async (req, res) => {
   try {
-    const { username, start, days } = req.body;
-    if (!username || !start)
+    const { username, start } = req.body;
+    if (!username || !start) 
       return res.status(400).json({ message: "Username and start date required" });
 
-    // normalize start & days before saving
-    const startDate = new Date(new Date(start).getFullYear(), new Date(start).getMonth(), new Date(start).getDate());
-    const normalizedDays = days.map(d => ({
-      ...d,
-      date: new Date(new Date(d.date).getFullYear(), new Date(d.date).getMonth(), new Date(d.date).getDate())
-    }));
-
+    const startDate = new Date(start);
     let period = await Period.findOne({ username, start: startDate });
 
     if (period) {
-      period.set({ ...req.body, start: startDate, days: normalizedDays });
+      // Update existing period
+      period.set(req.body);
     } else {
-      period = new Period({ ...req.body, start: startDate, days: normalizedDays });
+      // Create new period
+      period = new Period(req.body);
     }
 
     await period.save();
@@ -84,25 +92,29 @@ app.post("/api/period", async (req, res) => {
   }
 });
 
-// ---------------------- FETCH SINGLE DAY ----------------------
-app.get("/api/day", async (req, res) => {
+// Fetch period by username & date
+app.get("/api/period/:date", async (req, res) => {
   try {
-    const { username, date } = req.query;
-    const targetDate = new Date(new Date(date).getFullYear(), new Date(date).getMonth(), new Date(date).getDate());
+    const { date } = req.params;
+    const username = req.query.username;
+    const targetDate = new Date(date);
+
+    if (!username || !date) 
+      return res.status(400).json({ message: "Username and date required" });
 
     const period = await Period.findOne({
       username,
-      "days.date": targetDate
+      start: { $lte: targetDate },
+      end: { $gte: targetDate },
     });
 
-    if (!period) {
-      return res.status(404).json({ message: "No data for this date" });
-    }
+    if (!period) return res.status(404).json({ message: "No period found for this date" });
 
-    const day = period.days.find(d => d.date.getTime() === targetDate.getTime());
-    res.json({ day });
+    const day = period.days.find(d => new Date(d.date).toDateString() === targetDate.toDateString());
+    res.json({ day, periodStart: period.start });
   } catch (err) {
-    res.status(500).json({ error: err.message });
+    console.error("Fetch period error:", err);
+    res.status(500).json({ message: "Error fetching period", error: err.message });
   }
 });
 

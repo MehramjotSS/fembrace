@@ -41,7 +41,7 @@ function App() {
         <Route path="/dashboard/*" element={isAuthenticated ? <Dashboard currUser={currUser} onLogout={handleLogout} /> : <Navigate to="/login" replace />}>
           <Route index element={<Navigate to="prediction"  />} /> 
           <Route path="prediction" element={<Prediction/>} />
-          <Route path="calendar" element={<Calendar />} />
+          <Route path="calendar" element={<Calendar currUser={currUser}/>} />
           <Route path="schemes" element={<Schemes />} />
           <Route path="remedies" element={<Remedies />} />
         </Route>
