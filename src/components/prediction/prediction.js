@@ -1,40 +1,6 @@
 import React, { useState } from "react";
 import "./prediction.css";
-
-const ExplanationDisplay = ({ explanation }) => {
-  if (!explanation) return null;
-
-  // Convert explanation object to array and sort by absolute value
-  const sortedFeatures = Object.entries(explanation)
-    .map(([feature, value]) => ({
-      feature,
-      value,
-      absValue: Math.abs(value)
-    }))
-    .sort((a, b) => b.absValue - a.absValue);
-
-  return (
-    <div className="explanation-container">
-      <h4>Key Factors Influencing This Prediction:</h4>
-      <ul className="explanation-list">
-        {sortedFeatures.slice(0, 5).map(({ feature, value }) => (
-          <li key={feature} className={value > 0 ? "positive" : "negative"}>
-            <span className="feature-name">
-              {feature.replace(/_/g, " ").replace(/\(Y\/N\)/g, "")}:
-            </span>
-            <span className="feature-value">
-              {value > 0 ? "Increases" : "Decreases"} risk by{" "}
-              {Math.abs(value * 100).toFixed(1)}%
-            </span>
-          </li>
-        ))}
-      </ul>
-      <p className="explanation-note">
-        These are the top factors contributing to this prediction based on your input.
-      </p>
-    </div>
-  );
-};
+import PredictionResult from "./../predictionResult/predictionResult";
 
 const Prediction = () => {
   const [formData, setFormData] = useState({
@@ -58,7 +24,7 @@ const Prediction = () => {
     hairLoss: "",
     pimples: "",
     fastFood: "",
-    regularExercise: ""
+    regularExercise: "",
   });
 
   const [result, setResult] = useState(null);
@@ -68,28 +34,50 @@ const Prediction = () => {
   const bloodGroups = ["A+", "A-", "B+", "B-", "AB+", "AB-", "O+", "O-"];
 
   const handleChange = (e) => {
-    const { name, value } = e.target;
-    setFormData((prev) => ({
-      ...prev,
-      [name]: value,
-    }));
+  const { name, value } = e.target;
+
+  const updatedData = {
+    ...formData,
+    [name]: value,
   };
+
+  /* -------- BMI AUTO CALCULATION -------- */
+
+  const weight = parseFloat(updatedData.weight);
+  const heightCm = parseFloat(updatedData.height);
+
+  if (!isNaN(weight) && !isNaN(heightCm) && heightCm > 0) {
+    const heightM = heightCm / 100;
+    const bmi = weight / (heightM * heightM);
+    updatedData.bmi = bmi.toFixed(2);
+  }
+
+  /* -------- WAIST HIP RATIO AUTO CALCULATION -------- */
+
+  const waist = parseFloat(updatedData.waist);
+  const hip = parseFloat(updatedData.hip);
+
+  if (!isNaN(waist) && !isNaN(hip) && hip > 0) {
+    const ratio = waist / hip;
+    updatedData.waistHipRatio = ratio.toFixed(2);
+  }
+
+  setFormData(updatedData);
+};
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    setShowResult(true);
     setLoading(true);
 
-    // Validate if numeric fields are filled out properly
-    const invalidInputs = Object.entries(formData).some(([name, value]) => {
-      const isNumericField = [
-        "age", "weight", "height", "bmi", "pulseRate", 
-        "cycleRegularity", "cycleLength", "marriageStatus", 
-        "abortions", "hip", "waist", "waistHipRatio"
-      ].includes(name);
-      
-      return isNumericField && (value === "" || isNaN(value));
-    });
+    // Validate numeric fields
+    const numericFields = [
+      "age", "weight", "height", "bmi", "pulseRate",
+      "cycleRegularity", "cycleLength", "marriageStatus",
+      "abortions", "hip", "waist", "waistHipRatio",
+    ];
+    const invalidInputs = numericFields.some(
+      (name) => formData[name] === "" || isNaN(formData[name])
+    );
 
     if (invalidInputs) {
       alert("Please fill out all fields with valid data.");
@@ -101,7 +89,7 @@ const Prediction = () => {
       "Age (yrs)": +formData.age,
       "Weight (Kg)": +formData.weight,
       "Height(Cm)": +formData.height,
-      "BMI": +formData.bmi,
+      BMI: +formData.bmi,
       "Blood Group": bloodGroups.indexOf(formData.bloodGroup) + 1,
       "Pulse rate(bpm)": +formData.pulseRate,
       "Cycle(R/I)": +formData.cycleRegularity,
@@ -122,7 +110,6 @@ const Prediction = () => {
     };
 
     try {
-      // Make both prediction and explanation requests in parallel
       const [predictionRes, explanationRes] = await Promise.all([
         fetch("http://localhost:5002/predict", {
           method: "POST",
@@ -133,55 +120,34 @@ const Prediction = () => {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify(payload),
-        })
+        }),
       ]);
 
       const predictionData = await predictionRes.json();
       const explanationData = await explanationRes.json();
-      
+
       if (predictionData.error) throw new Error(predictionData.error);
       if (explanationData.error) throw new Error(explanationData.error);
-      
+
       setResult({
         ...predictionData,
-        explanation: explanationData.lime_explanation
+        explanation: explanationData.lime_explanation,
       });
     } catch (err) {
       setResult({ error: err.message });
     } finally {
       setLoading(false);
+      setShowResult(true);
     }
   };
 
-  return (
-    <div className="form-container">
-      {/* Prediction Result Banner at the Top */}
-      {showResult && (
-        <div className={`result-banner ${
-          result?.prediction === "PCOS" 
-            ? "pcos-positive" 
-            : result?.prediction === "No PCOS" 
-              ? "pcos-negative" 
-              : ""
-        }`}>
-          {loading ? (
-            <div className="loading-indicator">Calculating prediction...</div>
-          ) : result ? (
-            <>
-              <h3>PCOS Probability: {(result.probability * 100).toFixed(2)}%</h3>
-              <p>
-                {result.prediction === "PCOS"
-                  ? "High likelihood of PCOS detected"
-                  : "Low likelihood of PCOS detected"}
-              </p>
-              {result.explanation && <ExplanationDisplay explanation={result.explanation} />}
-            </>
-          ) : result?.error ? (
-            <p className="error-message">Error: {result.error}</p>
-          ) : null}
-        </div>
-      )}
+  const handleReset = () => {
+    setShowResult(false);
+    setResult(null);
+  };
 
+  const renderForm = () => (
+    <div className="form-container">
       <h2>PCOS PREDICTION FORM</h2>
       <form onSubmit={handleSubmit}>
         <div className="form-grid">
@@ -243,8 +209,10 @@ const Prediction = () => {
                 required
               >
                 <option value="">Select Blood Group</option>
-                {bloodGroups.map(group => (
-                  <option key={group} value={group}>{group}</option>
+                {bloodGroups.map((group) => (
+                  <option key={group} value={group}>
+                    {group}
+                  </option>
                 ))}
               </select>
             </div>
@@ -376,7 +344,7 @@ const Prediction = () => {
               { label: "Hair Loss", name: "hairLoss" },
               { label: "Pimples", name: "pimples" },
               { label: "Fast Food Consumption", name: "fastFood" },
-              { label: "Regular Exercise", name: "regularExercise" }
+              { label: "Regular Exercise", name: "regularExercise" },
             ].map(({ label, name }) => (
               <div className="input-group" key={name}>
                 <label htmlFor={name}>{label} (Y/N)</label>
@@ -401,6 +369,34 @@ const Prediction = () => {
         </button>
       </form>
     </div>
+  );
+
+  return (
+    <>
+      {showResult ? (
+        <div>
+          {loading ? (
+            <div className="form-container loading-screen">
+              <div className="loading-indicator">
+                <span className="loading-spinner" />
+                Analysing your data…
+              </div>
+            </div>
+          ) : (
+            <>
+              <PredictionResult result={result} formData={formData} />
+              <div className="retake-wrapper">
+                <button className="retake-btn" onClick={handleReset}>
+                  ← Retake Assessment
+                </button>
+              </div>
+            </>
+          )}
+        </div>
+      ) : (
+        renderForm()
+      )}
+    </>
   );
 };
 
