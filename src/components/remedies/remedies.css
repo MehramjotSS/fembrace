@@ -1,64 +1,131 @@
-.remedies-container {
+.remedies-container{
+display:flex;
+flex-direction:column;
+align-items:center;
+justify-content:flex-start;
 
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: flex-start;
-    min-height: 100vh;
-    padding: 50px 10%;
-    background: linear-gradient(to bottom, #fff1f6, #fbd3e0);
-    font-family: "Poppins", sans-serif;
-    text-align: center;
-    position: relative;
-    gap: 10rem;
-  }
-  
-  .remedies-container h2 {
-    font-size: 2.2rem;
-    color: #800f4b;
-    margin-bottom: 15px;
-    font-weight: 600;
-    text-transform: capitalize;
-  }
-  
-  .remedies-grid {
-    display: flex;
-    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
-    gap: 20px;
-    width: 90%;
-    max-width: 800px;
-  }
-  
-  .remedy-card {
-    background: white;
-    padding: 15px;
-    border-radius: 12px;
-    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
-    text-align: center;
-    transition: transform 0.3s ease-in-out, box-shadow 0.3s ease-in-out;
-  }
-  
-  .remedy-card:hover {
-    transform: translateY(-5px);
-    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.12);
-  }
-  
-  .remedy-icon {
-    font-size: 2.2rem;
-    color: #b56576;
-    margin-bottom: 10px;
-  }
-  
-  .remedy-card h3 {
-    font-size: 1.1rem;
-    color: #800f4b;
-    font-weight: 500;
-  }
-  
-  .remedy-card p {
-    font-size: 0.85rem;
-    color: #555;
-    opacity: 0.85;
-    line-height: 1.4;
-  }
-  
+min-height:100vh;
+padding:60px 10%;
+
+background:white;   /* same as forum */
+
+font-family:system-ui;
+text-align:center;
+
+gap:40px;
+}
+
+/* TITLE */
+
+.remedies-container h2{
+font-size:26px;
+font-weight:500;
+color:#444;
+font-style:italic;
+letter-spacing:0.3px;
+}
+
+/* GRID */
+
+.remedies-grid{
+display:grid;
+grid-template-columns:repeat(auto-fit,minmax(200px,1fr));
+gap:22px;
+
+width:100%;
+max-width:900px;
+}
+
+/* CARD */
+
+.remedy-card{
+background:#fff;
+padding:20px;
+
+border-radius:16px;
+
+border:1px solid #E5E5E8;
+border-top:4px solid #b57a86;   /* subtle pink accent */
+
+box-shadow:
+0 6px 18px rgba(0,0,0,0.05),
+0 2px 6px rgba(0,0,0,0.03);
+
+transition:
+transform .25s ease,
+box-shadow .25s ease;
+}
+
+.remedy-card:hover{
+transform:translateY(-3px);
+box-shadow:
+0 12px 28px rgba(0,0,0,0.08),
+0 4px 10px rgba(0,0,0,0.05);
+}
+
+/* ICON */
+
+.remedy-icon{
+font-size:24px;
+color:#b57a86;   /* same accent used in forum vote hover */
+margin-bottom:10px;
+}
+
+/* TITLE */
+
+.remedy-card h3{
+font-size:16px;
+font-weight:600;
+color:#222;
+margin-bottom:6px;
+}
+
+/* TEXT */
+
+.remedy-card p{
+font-size:13px;
+color:#444;
+line-height:1.5;
+}
+
+/* CARD */
+
+.remedy-card{
+background:#fff;
+padding:20px;
+border-radius:16px;
+
+border:1px solid #E5E5E8;
+border-top:4px solid #b57a86;
+
+box-shadow:
+0 4px 12px rgba(0,0,0,0.05),
+0 2px 4px rgba(0,0,0,0.04);
+
+transition:
+transform .45s cubic-bezier(.22,.61,.36,1),
+box-shadow .45s cubic-bezier(.22,.61,.36,1),
+opacity .35s ease;
+}
+
+/* fade others */
+
+.remedies-grid:hover .remedy-card{
+opacity:0.35;
+}
+
+/* focused card */
+
+.remedy-card:hover{
+opacity:1 !important;
+
+transform:translateY(-6px) scale(1.08);
+
+box-shadow:
+0 8px 20px rgba(0,0,0,0.10),
+0 20px 45px rgba(0,0,0,0.15),
+0 0 0 1px rgba(181,122,134,0.08),
+0 0 25px rgba(181,122,134,0.18);
+
+z-index:3;
+}

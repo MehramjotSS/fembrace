@@ -113,7 +113,6 @@ def generate_lime_explanation(scaled_input):
     )
     
     return {k: float(v) for k, v in exp.as_list()}
-
 def generate_shap_explanation(scaled_input):
     """Generate SHAP values with improved visualization"""
     explainer = shap.TreeExplainer(models["rf"])

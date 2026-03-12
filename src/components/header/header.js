@@ -19,6 +19,7 @@ const Header = ({ currUser, onLogout }) => {
         <Link to="/dashboard/prediction">PCOS PREDICTION</Link>
         <Link to="/dashboard/schemes">GOVERNMENT SCHEMES</Link>
         <Link to="/dashboard/remedies">REMEDIES</Link>
+        <Link to="/dashboard/forum">COMMUNITY FORUM</Link>
       </nav>
 
       <div className="profile-section">

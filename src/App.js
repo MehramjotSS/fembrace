@@ -8,6 +8,7 @@ import Calendar from "./components/calendar/calendar";
 import Schemes from "./components/schemes/schemes";
 import Remedies from "./components/remedies/remedies";
 import Prediction from "./components/prediction/prediction"
+import Forum from "./components/forum/forum";
 import "./App.css";
 
 function App() {
@@ -15,10 +16,12 @@ function App() {
   const [currUser,setCurrUser]=useState("");
 
   useEffect(() => {
-    if (localStorage.getItem("authToken")) {
-      setIsAuthenticated(true);
-    }
-  }, []);
+  const token = localStorage.getItem("authToken");
+
+  if (token) {
+    setIsAuthenticated(true);
+  }
+}, []);
 
   const handleLogin = (token,currUser) => {
     localStorage.setItem("authToken", token);
@@ -44,6 +47,7 @@ function App() {
           <Route path="calendar" element={<Calendar currUser={currUser}/>} />
           <Route path="schemes" element={<Schemes />} />
           <Route path="remedies" element={<Remedies />} />
+          <Route path="forum" element={<Forum currUser={currUser} />} />
         </Route>
       </Routes>
     </Router>

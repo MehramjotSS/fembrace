@@ -1,0 +1,297 @@
+.forum-container{
+max-width:900px;
+margin:auto;
+padding:40px 20px;
+background:#F5F5F7;
+font-family:system-ui;
+}
+
+/* TITLE */
+
+.forum-container h2{
+font-size:26px;
+font-weight:500;
+margin-bottom:30px;
+color:#444444;
+font-style:italic;
+text-align:center;
+letter-spacing:0.3px;
+}
+
+/* ASK BOX */
+
+.ask-box{
+background:#fff;
+border-radius:16px;
+padding:22px;
+margin-bottom:35px;
+border:1px solid #E5E5E8;
+
+display:flex;
+flex-direction:column;
+gap:12px;
+
+box-shadow:
+0 6px 18px rgba(0,0,0,0.05),
+0 2px 6px rgba(0,0,0,0.03);
+}
+
+.title-input{
+padding:11px;
+border-radius:8px;
+border:1px solid #E2E2E6;
+font-size:14px;
+background:#FAFAFB;
+}
+
+.ask-box textarea{
+padding:11px;
+border-radius:8px;
+border:1px solid #E2E2E6;
+min-height:90px;
+font-size:14px;
+background:#FAFAFB;
+}
+
+.ask-box button{
+width:170px;
+background:#2a2a2a;
+color:white;
+border:none;
+padding:10px;
+border-radius:8px;
+cursor:pointer;
+font-weight:500;
+transition:all .25s ease;
+}
+
+.ask-box button:hover{
+background:#444;
+transform:translateY(-1px);
+}
+
+/* QUESTION CARD */
+
+.question-card{
+background:#fff;
+border:1px solid #E5E5E8;
+border-left:4px solid #b57a86;
+
+border-radius:16px;
+padding:20px;
+margin-bottom:22px;
+
+box-shadow:
+0 6px 18px rgba(0,0,0,0.05),
+0 2px 6px rgba(0,0,0,0.03);
+
+transition:transform .25s ease, box-shadow .25s ease;
+}
+
+
+.question-card:hover{
+transform:translateY(-3px);
+box-shadow:
+0 12px 28px rgba(0,0,0,0.08),
+0 4px 10px rgba(0,0,0,0.05);
+}
+
+.question-title{
+font-size:20px;
+font-weight:600;
+color:#222;
+}
+
+.question-user{
+font-size:13px;
+color:#6A6A6A;
+margin-top:3px;
+}
+
+.question-description{
+font-size:14px;
+margin-top:10px;
+line-height:1.6;
+color:#444;
+
+border-bottom:1px solid #EEE;
+padding-bottom:12px;
+margin-bottom:12px;
+}
+
+
+/* SHOW COMMENTS */
+
+.toggle-btn,.deleteqs{
+margin-left:10px;
+margin-top:10px;
+background:#f2f2f5;
+border:none;
+padding:7px 14px;
+border-radius:6px;
+cursor:pointer;
+font-size:13px;
+color:#3e3e3e;
+font-weight:500;
+
+transition:
+background-color .85s ease,
+transform 0.85s ease,
+box-shadow 0.85s ease;
+}
+
+.toggle-btn:hover,.deleteqs:hover{
+background:#d6d6da;
+transform:translateY(-1px);
+font-weight: bolder;
+}
+
+/* COMMENT SECTION */
+
+.comment-section{
+margin-top:15px;
+}
+
+/* COMMENT INPUT */
+
+.comment-input{
+display:flex;
+align-items:center;
+gap:10px;
+margin-bottom:15px;
+}
+
+.comment-input input{
+flex:1;
+padding:10px;
+border-radius:8px;
+border:1px solid #E2E2E6;
+background:#FAFAFB;
+font-size:14px;
+}
+
+.comment-input button{
+padding:10px 16px;
+border:none;
+border-radius:8px;
+background:#444;
+color:white;
+cursor:pointer;
+
+margin-left:4px;
+
+transition:background .2s ease;
+}
+
+.comment-input button:hover{
+background:#2f2f2f;
+}
+
+/* COMMENT CARD */
+
+.comment-card{
+display:flex;
+gap:10px;
+
+padding:14px;
+margin-bottom:12px;
+
+border-radius:12px;
+background:#ffffff;
+
+border: 2px solid #e8e8ed;
+
+box-shadow:
+0 14px 12px rgba(0,0,0,0.04);
+
+transition:box-shadow .25s ease, transform .2s ease;
+}
+
+.comment-card:hover{
+box-shadow:
+0 8px 20px rgba(0,0,0,0.07);
+transform:translateY(-1px);
+}
+
+/* VOTE BAR */
+
+.vote-bar{
+display:flex;
+align-items:center;
+gap:6px;
+margin-right:10px;
+}
+
+/* ICONS */
+
+.vote-icon{
+width:20px;
+height:20px;
+cursor:pointer;
+stroke:#444;
+transition:all .2s ease;
+}
+
+.vote-icon:hover{
+stroke:#b57a86;
+transform:scale(1.1);
+}
+
+.vote-number{
+font-size:12px;
+font-weight:500;
+min-width:16px;
+text-align:center;
+color:#333;
+}
+
+/* COMMENT BODY */
+
+.comment-body{
+flex:1;
+}
+
+.comment-user{
+font-size:13px;
+font-weight:600;
+color:#2b2b2b;
+margin-bottom:3px;
+}
+
+.comment-text{
+font-size:14px;
+color:#444;
+line-height:1.5;
+}
+
+/* ACTIONS */
+
+.comment-actions{
+margin-top:6px;
+display:flex;
+gap:8px;
+}
+
+/* REPLY + DELETE */
+
+.reply-btn,.delete-btn{
+border:none;
+background:#f2f2f5;
+font-size:12px;
+padding:6px 12px;
+border-radius:6px;
+cursor:pointer;
+color:#3e3e3e;
+
+transition:
+background-color .85s ease,
+transform 0.85s ease,
+box-shadow 0.85s ease;
+}
+
+.reply-btn:hover,.delete-btn:hover{
+  
+  transform:translateY(-1px);
+  background:#d4d4d6;
+  font-weight:bolder;
+}
