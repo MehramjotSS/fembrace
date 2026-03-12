@@ -25,5 +25,7 @@ npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
 src/backend/DL_models/myenv/
-
 src/backend/DL_models/venv/
+
+.vscode/
+
